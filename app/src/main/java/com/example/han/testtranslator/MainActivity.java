@@ -2,6 +2,12 @@ package com.example.han.testtranslator;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.Translate.TranslateOption;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -13,8 +19,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
+
+
         setContentView(R.layout.activity_main);
 
+        // Instantiates a client
+        Translate translate = TranslateOptions.getDefaultInstance().getService();
+
+        // The text to translate
+        String text = "Hello, world!";
+
+        // Translates some text into Russian
+        Translation translation =
+                translate.translate(
+                        text,
+                        TranslateOption.sourceLanguage("en"),
+                        TranslateOption.targetLanguage("ru"));
+
+        Log.d("TEXT", "onCreateText: %s%n" + text);
+        Log.d("TRANSLATED TEXT", "onCreateText: %s%n" + translation.getTranslatedText());
 
 
 

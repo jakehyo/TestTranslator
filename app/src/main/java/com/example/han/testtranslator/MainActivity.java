@@ -1,5 +1,7 @@
 package com.example.han.testtranslator;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,18 +22,31 @@ public class MainActivity extends AppCompatActivity {
     private Uri outputFileDir;
     private String mCurrentPhotoPath;
 
+    private String recognizedText;
+    private Bitmap bitmap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //android.speech.RecognizerIntent
 
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hello);
+        TessBaseAPI baseApi = new TessBaseAPI();
+// DATA_PATH = Path to the storage
+// lang = for which the language data exists, usually "eng"
 
-        Tesseract tesseract = new Tesseract();
 
-        String text = tesseract.extractText();
+            String dataPath = getExternalFilesDir("/").getPath() + "/";
+        Log.d(TAG, "onCreate: FilePath" + dataPath);
+            baseApi.init(dataPath, "eng");
 
-        Log.d("TRANSLATION", "onCreate: " + text);
+        Log.d("ERROR", "extractText: " + "FAILED TO BE READ");
+// Eg. baseApi.init("/mnt/sdcard/tesseract/tessdata/eng.traineddata", "eng");
+        baseApi.setImage(bitmap);
+        recognizedText = baseApi.getUTF8Text();
+        baseApi.end();
+        Log.d(TAG, "onCreate: "+ recognizedText);
 
 
 //        GoogleAPI.setHttpReferrer("https://accounts.google.com/o/oauth2/auth");

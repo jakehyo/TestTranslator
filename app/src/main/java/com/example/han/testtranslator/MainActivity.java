@@ -1,17 +1,31 @@
 package com.example.han.testtranslator;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+
+import com.googlecode.tesseract.android.TessBaseAPI;
 
 
 public class MainActivity extends AppCompatActivity {
 
     public static String GOOGLE_API_KEY = "AIzaSyAeRI1ySyvjH-SZXcLPR8fRofgPNC9XKXE";
+    public static final String TESS_DATA = "/tessdata";
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/Tess";
+
+    private TessBaseAPI tessBaseAPI;
+    private Uri outputFileDir;
+    private String mCurrentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //android.speech.RecognizerIntent
+
 
         Tesseract tesseract = new Tesseract();
 
@@ -34,5 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
 }
 

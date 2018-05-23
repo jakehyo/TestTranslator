@@ -24,17 +24,35 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private TextToSpeech tts;
     private Button ttsButton;
+    private String translatedText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        GoogleAPI.setHttpReferrer("https://translation.googleapis.com/language/translate/v2?key=AIzaSyAeRI1ySyvjH-SZXcLPR8fRofgPNC9XKXE");
+//
+//        // Set the Google Translate API key
+//        // See: http://code.google.com/apis/language/translate/v2/getting_started.html
+//        GoogleAPI.setKey("AIzaSyAeRI1ySyvjH-SZXcLPR8fRofgPNC9XKXE");
+//
+//        try {
+//            translatedText = Translate.DEFAULT.execute("Bonjour le monde", Language.FRENCH, Language.ENGLISH);
+//        } catch (GoogleAPIException e) {
+//            Log.e(TAG, "onCreate: "+ e.getMessage());
+//            Log.d(TAG, "RYANATOR: " + translatedText);
+//        }
+
+
+
         wireWidgets();
 
         imageToString();
 
         initTTS();
+
+
 
         ttsButton.setText(recognizedText);
 
@@ -44,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void wireWidgets() {
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hello);
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.download);
         baseApi = new TessBaseAPI();
         ttsButton = (Button) findViewById(R.id.button_tts);
     }
@@ -67,10 +85,11 @@ public class MainActivity extends AppCompatActivity {
     private void imageToString() {
         String dataPath = getExternalFilesDir("/").getPath() + "/";
         baseApi.init(dataPath, "eng");
+        //baseApi.init("
         baseApi.setImage(bitmap);
         recognizedText = baseApi.getUTF8Text();
         baseApi.end();
-        Log.d(TAG, "onCreate: " + recognizedText);
+        Log.d(TAG, "onCreateMagic: " + recognizedText);
     }
 
 

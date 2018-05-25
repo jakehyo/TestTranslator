@@ -28,4 +28,12 @@ public class Definition {
     public void setPartOfSpeech(String partOfSpeech) {
         this.partOfSpeech = partOfSpeech;
     }
+
+    @Override
+    public String toString() {
+        return "Definition{" +
+                "definition='" + definition + '\'' +
+                ", partOfSpeech='" + partOfSpeech + '\'' +
+                '}';
+    }
 }

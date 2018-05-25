@@ -30,4 +30,12 @@ public class DefinitionList {
     public void setWord(String word) {
         this.word = word;
     }
+
+    @Override
+    public String toString() {
+        return "DefinitionList{" +
+                "word='" + word + '\'' +
+                ", definitions=" + definitions +
+                '}';
+    }
 }

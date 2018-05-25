@@ -12,7 +12,15 @@ import android.widget.Toast;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -24,35 +32,49 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private TextToSpeech tts;
     private Button ttsButton;
-    private String translatedText;
+    private DefinitionList definitions;
+    private String wordDefinition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        GoogleAPI.setHttpReferrer("https://translation.googleapis.com/language/translate/v2?key=AIzaSyAeRI1ySyvjH-SZXcLPR8fRofgPNC9XKXE");
-//
-//        // Set the Google Translate API key
-//        // See: http://code.google.com/apis/language/translate/v2/getting_started.html
-//        GoogleAPI.setKey("AIzaSyAeRI1ySyvjH-SZXcLPR8fRofgPNC9XKXE");
-//
-//        try {
-//            translatedText = Translate.DEFAULT.execute("Bonjour le monde", Language.FRENCH, Language.ENGLISH);
-//        } catch (GoogleAPIException e) {
-//            Log.e(TAG, "onCreate: "+ e.getMessage());
-//            Log.d(TAG, "RYANATOR: " + translatedText);
-//        }
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(WordsAPI.baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        WordsAPI api = retrofit.create(WordsAPI.class);
+
+        Call<DefinitionList> call = api.getDefinitions("base");
 
 
+        call.enqueue(new Callback<DefinitionList>() {
+            @Override
+            public void onResponse(Call<DefinitionList> call, Response<DefinitionList> response) {
+                List<Definition> defs = response.body().getDefinitions();
+                for (Definition def: defs)
+                {
+                    wordDefinition += " " + def.getDefinition();
+                }
+
+                Log.d("IT WORKED", "onResponse: " + defs.toString());
+            }
+
+            @Override
+            public void onFailure(Call<DefinitionList> call, Throwable t) {
+
+                //Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onFailure: "+ t.getMessage());
+            }
+        });
 
         wireWidgets();
 
         imageToString();
 
         initTTS();
-
-
 
         ttsButton.setText(recognizedText);
 
@@ -73,9 +95,10 @@ public class MainActivity extends AppCompatActivity {
         ttsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String toSpeak = recognizedText;
+                String toSpeak = wordDefinition;
                 Toast.makeText(getApplicationContext(), toSpeak,Toast.LENGTH_SHORT).show();
-                tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                HashMap<String,String> param = new HashMap<>();
+                tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, param);
             }
         });
     }
@@ -115,5 +138,7 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onPause();
     }
+
+
 }
 

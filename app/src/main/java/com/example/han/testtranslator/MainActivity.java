@@ -1,5 +1,6 @@
 package com.example.han.testtranslator;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -79,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
         ttsButton.setText(recognizedText);
 
         setListeners();
+
+        Intent svc = new Intent(this, OverlayShowingService.class);
+        startService(svc);
     }
 
 
@@ -124,6 +128,9 @@ public class MainActivity extends AppCompatActivity {
                 if (i != TextToSpeech.ERROR) {
                     tts.setLanguage(Locale.UK);
                 }
+                else{
+                    Toast.makeText(MainActivity.this, "ERROR HAS OCCURED WITH TEXT TO SPEECH SERVICE", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -138,6 +145,21 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onPause();
     }
+
+    protected void onDestroy() {
+
+
+        //Close the Text to Speech Library
+        if(tts != null) {
+
+            tts.stop();
+            tts.shutdown();
+            Log.d(TAG, "TTS Destroyed");
+        }
+        super.onDestroy();
+    }
+
+
 
 
 }

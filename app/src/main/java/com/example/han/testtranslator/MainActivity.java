@@ -1,9 +1,14 @@
 package com.example.han.testtranslator;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -13,6 +18,10 @@ import android.widget.Toast;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -23,10 +32,14 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.example.han.testtranslator.CopyAssets.copyFile;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    private static final int WRITE_REQUEST_CODE = 101;
 
     private TessBaseAPI baseApi;
     private String recognizedText;
@@ -36,10 +49,15 @@ public class MainActivity extends AppCompatActivity {
     private DefinitionList definitions;
     private String wordDefinition;
 
+    private CopyAssets c;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        requestPermissions(permissions, WRITE_REQUEST_CODE);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(WordsAPI.baseUrl)
@@ -71,6 +89,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Log.d(TAG, "AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH: " + getExternalFilesDir("/").getPath() + "/");
+        Log.d(TAG, "BRUHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH: " + Environment.getExternalStorageDirectory()+"/www/resources/");
+        Log.d(TAG, "DOES EXTERNAL STORAGE EXIST FOR MEEEEEEEEEEEEEEEEEEEEEEEE: " + Environment.getExternalStorageState());
+        Log.d(TAG, "IS EXTERNAL STORAGE REMOVEABBLLLLLLLLLLLLLLLLLLLLLE: " + Environment.isExternalStorageRemovable());
+        Log.d(TAG, "IS EXTERNAL STORAGE EMULATEDDDDDDDDDDDDDDDDDDDDDD: " + Environment.isExternalStorageEmulated());
+
+        c = new CopyAssets();
+        c.copyAssets(getApplicationContext());
+
+
         wireWidgets();
 
         imageToString();
@@ -84,8 +112,6 @@ public class MainActivity extends AppCompatActivity {
         Intent svc = new Intent(this, OverlayShowingService.class);
         startService(svc);
     }
-
-
 
     private void wireWidgets() {
         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.download);
@@ -110,7 +136,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void imageToString() {
-        String dataPath = getExternalFilesDir("/").getPath() + "/";
+        //String dataPath = getExternalFilesDir("/").getPath() + "/";
+        String dataPath = Environment.getExternalStorageDirectory()+"/www/resources/";
+        Log.d(TAG, "WHAT IS THE FILEPATH: " + dataPath);
         baseApi.init(dataPath, "eng");
         //baseApi.init("
         baseApi.setImage(bitmap);
@@ -137,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     @Override
     protected void onPause(){
         if(tts !=null){
@@ -159,8 +188,21 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case WRITE_REQUEST_CODE:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    //Granted.
 
 
+                }
+                else{
+                    //Denied.
+                }
+                break;
+        }
+    }
 
 }
 

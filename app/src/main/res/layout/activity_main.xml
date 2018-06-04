@@ -57,14 +57,4 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="192dp" />
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        tools:layout_editor_absoluteX="166dp"
-        tools:layout_editor_absoluteY="100dp" />
-
 </android.support.constraint.ConstraintLayout>

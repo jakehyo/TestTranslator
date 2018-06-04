@@ -73,7 +73,7 @@ public class OverlayShowingService extends Service implements OnTouchListener, O
 
         overlayedButton = LayoutInflater.from(this).inflate(R.layout.overlay, null);
         overlayedButton.setOnTouchListener(this);
-        overlayedButton.setBackgroundColor(0x55fe4444);
+        overlayedButton.setBackgroundColor(getResources().getColor(R.color.colorBackground));
         overlayedButton.setOnClickListener(this);
         overlayedButton.findViewById(R.id.dictionaryEnter).setOnClickListener(this);
         overlayedButton.findViewById(R.id.dictionarySearch).setOnClickListener(this);
@@ -93,7 +93,7 @@ public class OverlayShowingService extends Service implements OnTouchListener, O
         //optionButton.setOnClickListener(this);
 
 
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.LEFT | Gravity.TOP;
         params.x = 0;
         params.y = 0;
@@ -105,7 +105,7 @@ public class OverlayShowingService extends Service implements OnTouchListener, O
 
 
         topLeftView = new View(this);
-        WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_APPLICATION_OVERLAY, LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_SYSTEM_ALERT, LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         topLeftParams.gravity = Gravity.LEFT | Gravity.TOP;
         topLeftParams.x = 0;
         topLeftParams.y = 0;
@@ -256,6 +256,7 @@ public class OverlayShowingService extends Service implements OnTouchListener, O
                 String hello = editText.getText().toString();
                 stopSelf();
                 Intent toSearch = new Intent(this, MainActivity.class);
+                toSearch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 toSearch.putExtra(WORD_TO_SEARCH, hello);
                 startActivity(toSearch);
                 break;

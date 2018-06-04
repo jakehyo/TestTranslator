@@ -11,8 +11,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.media.ImageReader;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +41,11 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
     private WindowManager wm;
     private LinearLayout rootContent;
 
+    private MediaProjectionManager mediaProjectionManager;
+    private MediaProjection mediaProjection;
+    private int mDensity, mWidth, mHeight;
+    private Display mDisplay;
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -50,7 +58,7 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
 
         wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 
-
+        mediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
 
         overlayedButton = new Button(this);
         overlayedButton.setText("Screenshot");
@@ -167,7 +175,10 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
     /*  Method which will take screenshot on Basis of Screenshot Type ENUM  */
     private void takeScreenshot() {
 
-        Bitmap b ;
+
+
+
+
         //switch (screenshotType) {
         //case FULL:
         //If Screenshot type is FULL take full page screenshot i.e our root content.

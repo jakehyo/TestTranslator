@@ -20,6 +20,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -31,12 +32,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private String wordSearch;
+
     List<String> dataset = new ArrayList<>();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //I believe this gives permission for the app to write to storage the OCR traineddata file.
+
+        Bundle extras = getIntent().getExtras();
+
+        if(extras != null){
+            wordSearch = extras.getString(OverlayShowingService.WORD_TO_SEARCH);
+        } else {
+            wordSearch = "definition";
+        }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
@@ -56,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter = new MyAdapter(dataset);
         mRecyclerView.setAdapter(mAdapter);
 
+        TextView titleText = findViewById(R.id.title);
+        titleText.setText(wordSearch);
+
 // The retrofit setup for WordsAPI, which provides use with definitions of a given word.
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(WordsAPI.baseUrl)
@@ -63,15 +78,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .build();
         WordsAPI api = retrofit.create(WordsAPI.class);
         //Line below provides API with the word it needs to find definitions for.
-        Call<DefinitionList> call = api.getDefinitions("base");
+        Call<DefinitionList> call = api.getDefinitions(wordSearch);
 
         call.enqueue(new Callback<DefinitionList>() {
             @Override
             public void onResponse(Call<DefinitionList> call, Response<DefinitionList> response) {
-                List<Definition> defs = response.body().getDefinitions();
-                for (Definition def: defs)
-                {
-                    dataset.add(def.getPartOfSpeech() + ": " + def.getDefinition());
+                if(response.body() != null) {
+                    List<Definition> defs = response.body().getDefinitions();
+
+                    for (Definition def : defs) {
+                        dataset.add(def.getPartOfSpeech() + ": " + def.getDefinition());
+                    }
                 }
                 mAdapter.notifyDataSetChanged();
             }

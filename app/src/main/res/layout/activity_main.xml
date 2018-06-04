@@ -23,7 +23,7 @@
     </android.support.v7.widget.RecyclerView>
 
     <TextView
-        android:id="@+id/wordView"
+        android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -47,7 +47,7 @@
 
         android:tint="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/wordView"
+        app:layout_constraintTop_toBottomOf="@+id/title"
         app:srcCompat="@android:drawable/ic_input_add" />
 
     <android.support.constraint.Guideline
@@ -55,6 +55,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="142dp" />
+        app:layout_constraintGuide_end="192dp" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name"
+        tools:layout_editor_absoluteX="166dp"
+        tools:layout_editor_absoluteY="100dp" />
 
 </android.support.constraint.ConstraintLayout>

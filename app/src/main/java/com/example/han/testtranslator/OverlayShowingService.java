@@ -15,23 +15,30 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-class OverlayShowingService extends Service implements OnTouchListener, OnClickListener {
+import java.security.Key;
+
+public class OverlayShowingService extends Service implements OnTouchListener, OnClickListener, View.OnKeyListener {
 
     private View topLeftView, rootView;
 
-    private Button overlayedButton, optionButton;
+    private EditText optionButton;
     private ImageReader mImageReader;
     private float offsetX;
     private float offsetY;
@@ -40,6 +47,10 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
     private boolean moving;
     private WindowManager wm;
     private LinearLayout rootContent;
+
+    public static final String WORD_TO_SEARCH = "This is the word you're searching";
+
+    private View overlayedButton;
 
     private MediaProjectionManager mediaProjectionManager;
     private MediaProjection mediaProjection;
@@ -60,11 +71,20 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
 
         mediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
 
-        overlayedButton = new Button(this);
-        overlayedButton.setText("Screenshot");
+        overlayedButton = LayoutInflater.from(this).inflate(R.layout.overlay, null);
         overlayedButton.setOnTouchListener(this);
         overlayedButton.setBackgroundColor(0x55fe4444);
         overlayedButton.setOnClickListener(this);
+        overlayedButton.findViewById(R.id.dictionaryEnter).setOnClickListener(this);
+        overlayedButton.findViewById(R.id.dictionarySearch).setOnClickListener(this);
+
+        InputMethodManager inputManager = (InputMethodManager) this.
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputManager != null) {
+            inputManager.toggleSoftInput(0, InputMethodManager.SHOW_IMPLICIT);
+        }
+
+
 
         //optionButton = new Button(this);
         //optionButton.setText("Options");
@@ -73,7 +93,7 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
         //optionButton.setOnClickListener(this);
 
 
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.LEFT | Gravity.TOP;
         params.x = 0;
         params.y = 0;
@@ -85,7 +105,7 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
 
 
         topLeftView = new View(this);
-        WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_APPLICATION_OVERLAY, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_APPLICATION_OVERLAY, LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         topLeftParams.gravity = Gravity.LEFT | Gravity.TOP;
         topLeftParams.x = 0;
         topLeftParams.y = 0;
@@ -129,6 +149,8 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
 
             originalXPos = location[0];
             originalYPos = location[1];
+
+
 
             offsetX = originalXPos - x;
             offsetY = originalYPos - y;
@@ -216,33 +238,30 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
 
 
 
-
     @Override
     public void onClick(View v) {
-        Toast.makeText(OverlayShowingService.this, "pop up working", Toast.LENGTH_SHORT).show();
-        Context context = OverlayShowingService.this;
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(context, android.R.style.Theme_Material_Light_Dialog_Alert);
-        } else {
-            builder = new AlertDialog.Builder(context);
+        Log.d("clicked", "onClick: Clicked");
+        EditText yourEditText= (EditText) overlayedButton.findViewById(R.id.dictionaryEnter);
+        switch (v.getId()){
+            case R.id.dictionaryEnter:
+
+
+                yourEditText.requestFocus();
+
+                Log.d("Tryna Keyboard", "onClick: ");
+                break;
+            case R.id.dictionarySearch:
+                Log.d("Tryna Search", "onClick: ");
+                EditText editText = overlayedButton.findViewById(R.id.dictionaryEnter);
+                String hello = editText.getText().toString();
+                stopSelf();
+                Intent toSearch = new Intent(this, MainActivity.class);
+                toSearch.putExtra(WORD_TO_SEARCH, hello);
+                startActivity(toSearch);
+                break;
+            default:
+                yourEditText.clearFocus();
         }
-        builder.setTitle("STOP IT!")
-                .setMessage("Button: Can you please STOP clicking me?!")
-                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // continue with delete
-                    }
-                })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-
-
 
         //Toast.makeText(this, "No u", Toast.LENGTH_SHORT).show();
         //stopSelf();
@@ -257,4 +276,8 @@ class OverlayShowingService extends Service implements OnTouchListener, OnClickL
 
     }
 
+    @Override
+    public boolean onKey(View view, int i, KeyEvent keyEvent) {
+        return true;
+    }
 }
